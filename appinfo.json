@@ -1,0 +1,18 @@
+{
+  "uuid": "d2cef5c2-08bc-4d83-92bf-aa8606903eed",
+  "shortName": "RubikStopTap",
+  "longName": "RubikStopTap",
+  "companyName": "aocodermx",
+  "versionLabel": "1.0",
+  "sdkVersion": "3",
+  "targetPlatforms": ["aplite", "basalt"],
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
