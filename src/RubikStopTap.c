@@ -16,27 +16,33 @@
 #define KEY_PERSIST_MODE        9 // Move this to StopWatchWindow
 #define KEY_PERSIST_HISTORY    10
 
-static int s_stats_solves     = 0;
-static int s_stats_total_time = 0;
-static int s_stats_max        = 0;
-static int s_stats_min        = 0;
+static unsigned int s_stats_solves     = 0;
+static unsigned int s_stats_total_time = 0;
+static unsigned int s_stats_max        = 0;
+static unsigned int s_stats_min        = 0;
 // Calculate average at fly
+static unsigned int s_elapsed_time     = 0;
 
 /*
  * StatsWindow: Window to kepp track of user stats.
  */
 
-static void stats_refresh ( double elapsed_time ) {
+static void stats_refresh ( ) {
   s_stats_solves ++;
-  s_stats_total_time += elapsed_time;
+  s_stats_total_time += s_elapsed_time;
 
-  s_stats_max = elapsed_time > s_stats_max ? elapsed_time : s_stats_max;
-  s_stats_min = elapsed_time < s_stats_min ? elapsed_time : s_stats_min;
+  s_stats_max = s_elapsed_time > s_stats_max ? s_elapsed_time : s_stats_max;
+  s_stats_min = ( s_elapsed_time < s_stats_min || s_stats_min == 0 ) ? s_elapsed_time : s_stats_min;
 
   APP_LOG ( APP_LOG_LEVEL_INFO, "Solves : %d", s_stats_solves );
-  APP_LOG ( APP_LOG_LEVEL_INFO, "Average: %d", ( int ) ( ( double ) s_stats_total_time / s_stats_solves ) * 1000 );
-  APP_LOG ( APP_LOG_LEVEL_INFO, "Maximum: %d", s_stats_max * 1000 );
-  APP_LOG ( APP_LOG_LEVEL_INFO, "Minimum: %d", s_stats_min * 1000 );
+  APP_LOG ( APP_LOG_LEVEL_INFO, "Average: %d", ( unsigned int ) ( ( double ) s_stats_total_time / s_stats_solves ) );
+  APP_LOG ( APP_LOG_LEVEL_INFO, "Maximum: %d", s_stats_max );
+  APP_LOG ( APP_LOG_LEVEL_INFO, "Minimum: %d", s_stats_min );
+
+  persist_write_int ( KEY_PERSIST_SOLVES, s_stats_solves );
+  persist_write_int ( KEY_PERSIST_TOTAL_TIME, s_stats_total_time );
+  persist_write_int ( KEY_PERSIST_MAX, s_stats_max );
+  persist_write_int ( KEY_PERSIST_MIN, s_stats_min );
 }
 
 /*
@@ -79,6 +85,28 @@ static void accel_tap_stopwatch_handler ( AccelAxisType, int32_t );
  * StopWatchWindow: Main window to display current time.
  */
 
+static void update_ui_stats ( ) {
+  static char text_solves[15];
+  static char text_avg[10];
+  static char text_max[10];
+  static char text_min[10];
+
+  s_stats_solves     = persist_exists ( KEY_PERSIST_SOLVES )     ? persist_read_int ( KEY_PERSIST_SOLVES )     : 0;
+  s_stats_total_time = persist_exists ( KEY_PERSIST_TOTAL_TIME ) ? persist_read_int ( KEY_PERSIST_TOTAL_TIME ) : 0;
+  s_stats_max        = persist_exists ( KEY_PERSIST_MAX )        ? persist_read_int ( KEY_PERSIST_MAX )        : 0;
+  s_stats_min        = persist_exists ( KEY_PERSIST_MIN )        ? persist_read_int ( KEY_PERSIST_MIN )        : 0;
+
+  snprintf ( text_solves, sizeof ( text_solves ), "AVG(%d):", s_stats_solves );
+  snprintf ( text_avg, sizeof ( text_avg ), "%02d.%03d", ( s_stats_total_time / s_stats_solves ) / 1000, ( s_stats_total_time / s_stats_solves ) % 1000 );
+  snprintf ( text_max, sizeof ( text_max), "M: %02d.%03d", s_stats_max / 1000, s_stats_max % 1000 );
+  snprintf ( text_min, sizeof ( text_min), "m: %02d.%03d", s_stats_min / 1000, s_stats_min % 1000 );
+
+  text_layer_set_text ( s_tlayer_times, text_solves );
+  text_layer_set_text ( s_tlayer_average, text_avg );
+  text_layer_set_text ( s_tlayer_max, text_max );
+  text_layer_set_text ( s_tlayer_min, text_min );
+}
+
 static void app_timer_stopwatch_handler ( void * data ) {
 
   double end_time = time ( NULL ) + ( double ) time_ms ( NULL, NULL ) / 1000;
@@ -93,12 +121,13 @@ static void app_timer_stopwatch_handler ( void * data ) {
   text_layer_set_text ( s_tlayer_time_lv1, s_the_time );
   text_layer_set_text ( s_tlayer_time_lv2, s_the_time_ms );
 
+  s_elapsed_time = elapsed_time * 1000;
+
   // APP_LOG ( APP_LOG_LEVEL_INFO, "STATE: %d", stopwatch_state );
   switch ( stopwatch_state ) {
     case STOP:
       break;
     case REVIEW:
-      stats_refresh ( elapsed_time );
       break;
     case VIEW:
       app_timer_register ( STOP_WATCH_REFRESH_TIME, app_timer_stopwatch_handler, NULL );
@@ -145,6 +174,8 @@ static void accel_tap_stopwatch_handler ( AccelAxisType axis, int32_t direction 
       text_layer_set_text ( s_tlayer_phase, STOPWATCH_STATE_STOP );
       text_layer_set_text ( s_tlayer_time_lv1, "00:00" );
       text_layer_set_text ( s_tlayer_time_lv2, "000" );
+      stats_refresh ( );
+      update_ui_stats ( );
       vibes_short_pulse ( );
       stopwatch_state = STOP;
       break;
@@ -183,7 +214,7 @@ static void window_load ( Window *window ) {
       bounds.size.h - STOP_WATCH_LAYER_STATS_LV1_HEIGHT - STOP_WATCH_LAYER_STATS_LV2_HEIGHT - 2 * STOP_WATCH_LAYER_STATS_PADDING,
       bounds.size.w / 2 - 2 * STOP_WATCH_LAYER_STATS_PADDING,
       STOP_WATCH_LAYER_STATS_LV1_HEIGHT ) );
-  text_layer_set_text_alignment ( s_tlayer_times, GTextAlignmentLeft );
+  text_layer_set_text_alignment ( s_tlayer_times, GTextAlignmentCenter );
   text_layer_set_background_color ( s_tlayer_times, GColorBlack );
   text_layer_set_text_color ( s_tlayer_times, GColorClear );
   text_layer_set_font ( s_tlayer_times, fonts_get_system_font ( FONT_KEY_GOTHIC_14 ) );
@@ -192,10 +223,10 @@ static void window_load ( Window *window ) {
 
   s_tlayer_average = text_layer_create (
     GRect (
-      STOP_WATCH_LAYER_STATS_PADDING,
-      bounds.size.h - STOP_WATCH_LAYER_STATS_LV2_HEIGHT - STOP_WATCH_LAYER_STATS_PADDING,
-      bounds.size.w / 2 - 2 * STOP_WATCH_LAYER_STATS_PADDING,
-      STOP_WATCH_LAYER_STATS_LV2_HEIGHT ) );
+      bounds.size.w / 2 ,
+      bounds.size.h - STOP_WATCH_LAYER_STATS_LV1_HEIGHT - STOP_WATCH_LAYER_STATS_LV2_HEIGHT - 2 * STOP_WATCH_LAYER_STATS_PADDING,
+      bounds.size.w / 2 - STOP_WATCH_LAYER_STATS_PADDING,
+      STOP_WATCH_LAYER_STATS_LV1_HEIGHT ) );
   text_layer_set_text_alignment ( s_tlayer_average, GTextAlignmentCenter );
   text_layer_set_background_color ( s_tlayer_average, GColorBlack );
   text_layer_set_text_color ( s_tlayer_average, GColorClear );
@@ -206,10 +237,10 @@ static void window_load ( Window *window ) {
 
   s_tlayer_max = text_layer_create (
     GRect (
-      bounds.size.w / 2 ,
-      bounds.size.h - STOP_WATCH_LAYER_STATS_LV1_HEIGHT - STOP_WATCH_LAYER_STATS_LV2_HEIGHT - 2 * STOP_WATCH_LAYER_STATS_PADDING,
-      bounds.size.w / 2 - STOP_WATCH_LAYER_STATS_PADDING,
-      STOP_WATCH_LAYER_STATS_LV1_HEIGHT ) );
+      STOP_WATCH_LAYER_STATS_PADDING,
+      bounds.size.h - STOP_WATCH_LAYER_STATS_LV2_HEIGHT - STOP_WATCH_LAYER_STATS_PADDING,
+      bounds.size.w / 2 - 2 * STOP_WATCH_LAYER_STATS_PADDING,
+      STOP_WATCH_LAYER_STATS_LV2_HEIGHT ) );
   text_layer_set_text_alignment ( s_tlayer_max, GTextAlignmentCenter );
   text_layer_set_background_color ( s_tlayer_max, GColorBlack );
   text_layer_set_text_color ( s_tlayer_max, GColorClear );
@@ -230,6 +261,8 @@ static void window_load ( Window *window ) {
   text_layer_set_font ( s_tlayer_min, fonts_get_system_font ( FONT_KEY_GOTHIC_14 ) );
   text_layer_set_text ( s_tlayer_min, "m: 00:00.000" );
   layer_add_child ( window_layer, text_layer_get_layer ( s_tlayer_min ) );
+
+  update_ui_stats ( );
 }
 
 static void window_unload ( Window *window ) {
