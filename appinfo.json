@@ -13,6 +13,19 @@
     "dummy": 0
   },
   "resources": {
-    "media": []
+    "media": [
+      {
+        "characterRegex": "[:0-9]",
+        "type": "font",
+        "name": "FONT_CUSTOM_45",
+        "file": "LCD-U___.TTF"
+      },
+      {
+        "characterRegex": "[0-9]",
+        "type": "font",
+        "name": "FONT_CUSTOM_35",
+        "file": "LCD-U___.TTF"
+      }
+    ]
   }
 }

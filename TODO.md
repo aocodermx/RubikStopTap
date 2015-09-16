@@ -4,17 +4,17 @@ This is a list of things to be implemented, wich is presented in a general list 
 
 ## General
 
+* [DONE] Calculate stats.
 * [DONE] Create a c file for each window.
-* Save time history and calculate stats.
 
 ## Stop Watch Window
 
 This window is intended to be the main window, the first to be called, in this window the times will be measured and displayed.
 
-* Add nice fonts for display time.
-* Merge solves and average layers.
 * Add stats resume in the bottom of the screen.
 * Modify display to under_60 seconds depending on average time.
+* [DONE] Merge solves and average layers.
+* [DONE] Add nice fonts for display time.
 
 ## Mode Window
 
