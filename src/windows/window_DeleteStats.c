@@ -2,7 +2,6 @@
  *  DeleteModeStats: Window to delete current mode stats.
  */
 #include <pebble.h>
-#include "utils.h"
 #include "common.h"
 #include "window_DeleteStats.h"
 
@@ -39,8 +38,11 @@ void window_deletemodestats_deinit ( ) {
 }
 
 static void window_load ( Window * window ) {
+  static char message[50];
   Layer *window_layer = window_get_root_layer ( window );
   GRect bounds = layer_get_bounds ( window_layer );
+
+  int cube_size = getCubeSize ( );
 
   s_icon_action_ok = gbitmap_create_with_resource ( RESOURCE_ID_ICON_ACTION_OK );
   s_icon_action_cancel = gbitmap_create_with_resource ( RESOURCE_ID_ICON_ACTION_CANCEL );
@@ -59,10 +61,11 @@ static void window_load ( Window * window ) {
 
   switch ( delete_instruction ) {
     case DELETE_MODE:
-      text_layer_set_text ( s_tlayer_message, DELETE_MODE_STATS_MESSAGE );
+      snprintf ( message, sizeof ( message ), "Are you sure to delete the %dx%dx%d stats?", cube_size, cube_size, cube_size );
+      text_layer_set_text ( s_tlayer_message, message );
       break;
     case DELETE_ALL:
-      text_layer_set_text ( s_tlayer_message, DELETE_ALL_STATS_MESSAGE );
+      text_layer_set_text ( s_tlayer_message, "Are you sure to delete the stats for all the cubes?" );
       break;
     default:
       APP_LOG ( APP_LOG_LEVEL_INFO, "Unespecified delete instruction." );
@@ -80,15 +83,16 @@ static void window_unload ( Window * window ) {
 static void window_up_click_handler ( ClickRecognizerRef recognizer, void *context ) {
   switch ( delete_instruction ) {
     case DELETE_MODE:
-      APP_LOG ( APP_LOG_LEVEL_INFO, "Delete mode stats");
+      delete_cube_stats ( getCubeSize ( ) );
       break;
     case DELETE_ALL:
-      APP_LOG ( APP_LOG_LEVEL_INFO, "Delete all stats");
+      delete_all_stats ( );
       break;
     default:
       APP_LOG ( APP_LOG_LEVEL_INFO, "Unespecified delete instruction." );
       break;
   }
+  window_deletemodestats_deinit ( );
 }
 
 static void window_down_click_handler ( ClickRecognizerRef recognizer, void *context ) {
