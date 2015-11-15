@@ -5,6 +5,9 @@
 #ifndef COMMON_INCLUDE
 #define COMMON_INCLUDE
 
+// Colors
+#define COLOR_BACKGROUND GColorCeleste
+
 // Config section
 #define KEY_PERSIST_CUBE_SIZE      0
 #define KEY_PERSIST_PRESICION      1

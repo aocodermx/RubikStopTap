@@ -37,6 +37,8 @@ static void window_load ( Window * window ) {
   Layer *window_layer = window_get_root_layer ( window );
   GRect bounds = layer_get_bounds ( window_layer );
 
+  window_set_background_color ( window, COLOR_FALLBACK ( COLOR_BACKGROUND, GColorClear ) );
+
   for (int i = 0; i < MAX_CUBE_SIZE - 1; i++) {
     snprintf ( sizes_text[i], sizeof ( sizes_text[i]), "%dx%dx%d", i + 2, i + 2, i + 2 );
     s_mitem[i] = ( SimpleMenuItem ) {
@@ -52,6 +54,11 @@ static void window_load ( Window * window ) {
   };
 
   s_mlayer_sizes = simple_menu_layer_create ( bounds, window, s_msections, 1, NULL );
+  #ifdef PBL_COLOR
+    MenuLayer *mlayer = simple_menu_layer_get_menu_layer ( s_mlayer_sizes );
+    menu_layer_set_normal_colors ( mlayer, COLOR_BACKGROUND, GColorBlack );
+    menu_layer_set_highlight_colors ( mlayer, GColorOxfordBlue, GColorWhite );
+  #endif
   layer_add_child ( window_layer, simple_menu_layer_get_layer ( s_mlayer_sizes ) );
 }
 

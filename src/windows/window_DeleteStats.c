@@ -42,6 +42,8 @@ static void window_load ( Window * window ) {
   Layer *window_layer = window_get_root_layer ( window );
   GRect bounds = layer_get_bounds ( window_layer );
 
+  window_set_background_color ( window, COLOR_FALLBACK ( COLOR_BACKGROUND, GColorClear ) );
+
   int cube_size = getCubeSize ( );
 
   s_icon_action_ok = gbitmap_create_with_resource ( RESOURCE_ID_ICON_ACTION_OK );
@@ -54,6 +56,7 @@ static void window_load ( Window * window ) {
   action_bar_layer_set_click_config_provider ( s_action_bar, ( ClickConfigProvider ) window_click_config_provider );
 
   s_tlayer_message = text_layer_create ( GRect( 0, DELETE_MODE_STATS_MESSAGE_START, bounds.size.w - ACTION_BAR_WIDTH, bounds.size.h - DELETE_MODE_STATS_MESSAGE_START ) );
+  text_layer_set_background_color ( s_tlayer_message, COLOR_FALLBACK ( COLOR_BACKGROUND, GColorClear ) );
   text_layer_set_text_alignment ( s_tlayer_message, GTextAlignmentCenter );
   text_layer_set_text_color ( s_tlayer_message, GColorBlack );
   text_layer_set_font ( s_tlayer_message, fonts_get_system_font ( FONT_KEY_GOTHIC_28 ) );

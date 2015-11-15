@@ -32,6 +32,7 @@ STOPWATCH_STATE stopwatch_state = STOP;
 
 static void window_load ( Window * );
 static void window_appear ( Window * );
+static void window_disappear ( Window * window );
 static void window_unload ( Window * );
 static void app_timer_stopwatch_handler ( void * );
 static void accel_tap_stopwatch_handler ( AccelAxisType, int32_t );
@@ -48,9 +49,10 @@ void window_stopwatch_init ( ) {
   s_stopwatch_window = window_create ( );
   // window_set_click_config_provider ( s_stopwatch_window, ( ClickConfigProvider ) config_provider );
   window_set_window_handlers ( s_stopwatch_window, ( WindowHandlers ) {
-    .load   = window_load,
-    .appear = window_appear,
-    .unload = window_unload,
+    .load      = window_load,
+    .appear    = window_appear,
+    .disappear = window_disappear,
+    .unload    = window_unload,
   } );
   #ifdef PBL_BW
     window_set_fullscreen ( s_stopwatch_window, true );
@@ -97,10 +99,9 @@ static void down_double_click_handler ( ClickRecognizerRef recognizer, void *con
 
 static void config_provider ( void *context ) {
   window_single_click_subscribe ( BUTTON_ID_UP, up_single_click_handler );
-
   window_single_click_subscribe ( BUTTON_ID_SELECT, select_single_click_handler );
-
   window_single_click_subscribe ( BUTTON_ID_DOWN, down_single_click_handler );
+
   window_multi_click_subscribe ( BUTTON_ID_DOWN, 2, 0, 0, true, down_double_click_handler );
   window_long_click_subscribe ( BUTTON_ID_DOWN, 3000, down_long_click_handler, NULL );
 }
@@ -171,8 +172,12 @@ static void accel_tap_stopwatch_handler ( AccelAxisType axis, int32_t direction 
     case VIEW:  // Start real time
       break;
     case START:
-      // Check for any type of reccord
-      text_layer_set_text ( s_tlayer_phase, STOPWATCH_STATE_REVIEW );
+      // Check for personal record
+      if ( s_elapsed_time < getCubeMin( getCubeSize ( ) ) ) {
+        text_layer_set_text ( s_tlayer_phase, STOPWATCH_CONGRATULATIONS );
+      } else {
+        text_layer_set_text ( s_tlayer_phase, STOPWATCH_STATE_REVIEW );
+      }
       vibes_short_pulse ( );
       stopwatch_state = REVIEW;
       break;
@@ -192,6 +197,8 @@ static void window_load ( Window * window ) {
   Layer *window_layer = window_get_root_layer ( window );
   GRect bounds = layer_get_bounds ( window_layer );
 
+  window_set_background_color ( window, COLOR_FALLBACK ( COLOR_BACKGROUND, GColorClear ) );
+
   accel_tap_service_subscribe ( accel_tap_stopwatch_handler );
 
   s_custom_font_45 = fonts_load_custom_font ( resource_get_handle ( RESOURCE_ID_FONT_CUSTOM_45 ) );
@@ -210,6 +217,7 @@ static void window_load ( Window * window ) {
   action_bar_layer_set_icon ( action_bar, BUTTON_ID_DOWN, s_icon_action_cancel );
 
   s_tlayer_phase = text_layer_create ( GRect ( 0, STOP_WATCH_DISPLAY_OFFSET, bounds.size.w - ACTION_BAR_WIDTH, STOP_WATCH_LAYER_PHASE_HEIGHT ) );
+  text_layer_set_background_color( s_tlayer_phase, COLOR_FALLBACK( COLOR_BACKGROUND, GColorClear ) );
   text_layer_set_text_alignment ( s_tlayer_phase, GTextAlignmentCenter );
   text_layer_set_text_color ( s_tlayer_phase, GColorBlack );
   text_layer_set_font ( s_tlayer_phase, fonts_get_system_font ( FONT_KEY_GOTHIC_18_BOLD ) );
@@ -217,12 +225,16 @@ static void window_load ( Window * window ) {
   layer_add_child ( window_layer, text_layer_get_layer ( s_tlayer_phase ) );
 
   s_tlayer_time_lv1 = text_layer_create ( GRect ( 0, STOP_WATCH_DISPLAY_OFFSET + STOP_WATCH_LAYER_PHASE_HEIGHT, bounds.size.w - ACTION_BAR_WIDTH, STOP_WATCH_LAYER_LV1_HEIGHT ) );
-  text_layer_set_text ( s_tlayer_time_lv1, "00:00" );
+  text_layer_set_background_color( s_tlayer_time_lv1, COLOR_FALLBACK( COLOR_BACKGROUND, GColorClear ) );
+  text_layer_set_text_color ( s_tlayer_time_lv1, COLOR_FALLBACK( GColorOxfordBlue, GColorBlack ) );
   text_layer_set_text_alignment ( s_tlayer_time_lv1, GTextAlignmentCenter );
+  text_layer_set_text ( s_tlayer_time_lv1, "00:00" );
   text_layer_set_font ( s_tlayer_time_lv1, s_custom_font_45 );
   layer_add_child ( window_layer, text_layer_get_layer ( s_tlayer_time_lv1 ) );
 
   s_tlayer_time_lv2 = text_layer_create ( GRect ( 0, STOP_WATCH_DISPLAY_OFFSET + STOP_WATCH_LAYER_LV1_HEIGHT + STOP_WATCH_LAYER_PHASE_HEIGHT, bounds.size.w - ACTION_BAR_WIDTH, STOP_WATCH_LAYER_LV2_HEIGHT ) );
+  text_layer_set_background_color( s_tlayer_time_lv2, COLOR_FALLBACK( COLOR_BACKGROUND, GColorClear ) );
+  text_layer_set_text_color ( s_tlayer_time_lv2, COLOR_FALLBACK( GColorOxfordBlue, GColorBlack ) );
   text_layer_set_text ( s_tlayer_time_lv2, "000" );
   text_layer_set_text_alignment ( s_tlayer_time_lv2, GTextAlignmentCenter );
   text_layer_set_font ( s_tlayer_time_lv2, s_custom_font_35 );
@@ -234,6 +246,7 @@ static void window_load ( Window * window ) {
       STOP_WATCH_DISPLAY_OFFSET + STOP_WATCH_LAYER_PHASE_HEIGHT + STOP_WATCH_LAYER_LV1_HEIGHT + STOP_WATCH_LAYER_LV2_HEIGHT,
       bounds.size.w - ACTION_BAR_WIDTH,
       STOP_WATCH_LAYER_STATS_LV1_HEIGHT ) );
+  text_layer_set_background_color( s_tlayer_mode, COLOR_FALLBACK( COLOR_BACKGROUND, GColorClear ) );
   text_layer_set_text_alignment ( s_tlayer_mode, GTextAlignmentCenter );
   text_layer_set_text_color ( s_tlayer_mode, GColorBlack );
   text_layer_set_font ( s_tlayer_mode, fonts_get_system_font ( FONT_KEY_GOTHIC_18_BOLD ) );
@@ -245,6 +258,7 @@ static void window_load ( Window * window ) {
       bounds.size.h - STOP_WATCH_LAYER_STATS_LV2_HEIGHT,
       bounds.size.w - ACTION_BAR_WIDTH,
       STOP_WATCH_LAYER_STATS_LV2_HEIGHT ) );
+  text_layer_set_background_color( s_tlayer_times_average, COLOR_FALLBACK( COLOR_BACKGROUND, GColorClear ) );
   text_layer_set_text_alignment ( s_tlayer_times_average, GTextAlignmentLeft );
   text_layer_set_text_color ( s_tlayer_times_average, GColorBlack );
   text_layer_set_font ( s_tlayer_times_average, fonts_get_system_font ( FONT_KEY_GOTHIC_14_BOLD ) );
@@ -252,7 +266,12 @@ static void window_load ( Window * window ) {
 }
 
 static void window_appear ( Window * window ) {
+  accel_tap_service_subscribe ( accel_tap_stopwatch_handler );
   update_ui_stats ( );
+}
+
+static void window_disappear ( Window * window ) {
+  accel_tap_service_unsubscribe ( );
 }
 
 static void window_unload ( Window * window ) {

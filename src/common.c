@@ -53,6 +53,7 @@ int  getCubeAverage ( int cube_size ) {
       persist_read_int ( stats_begin + KEY_PERSIST_AVERAGE_OFFSET ) :
       0;
 }
+
 void setCubeAverage ( int cube_size, int total_average ) {
   int stats_begin = STATS_START * ( cube_size + 1 );
   persist_write_int ( stats_begin + KEY_PERSIST_AVERAGE_OFFSET, total_average );
@@ -78,6 +79,7 @@ int  getCubeMin ( int cube_size ) {
       persist_read_int ( stats_begin + KEY_PERSIST_MIN_OFFSET ) :
       0;
 }
+
 void setCubeMin ( int cube_size, int min ) {
   int stats_begin = STATS_START * ( cube_size + 1 );
   persist_write_int ( stats_begin + KEY_PERSIST_MIN_OFFSET, min );
