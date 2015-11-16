@@ -31,7 +31,9 @@ static void window_load ( Window * window ) {
   Layer *window_layer = window_get_root_layer ( window );
   GRect bounds = layer_get_bounds ( window_layer );
 
-  window_set_background_color ( window, COLOR_FALLBACK ( COLOR_BACKGROUND, GColorClear ) );
+  #ifdef PBL_COLOR
+    window_set_background_color ( window, COLOR_BACKGROUND );
+  #endif
 
   STime average, max, min;
   int cube_size = getCubeSize ( );

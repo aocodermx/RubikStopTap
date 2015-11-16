@@ -197,8 +197,10 @@ static void window_load ( Window * window ) {
   Layer *window_layer = window_get_root_layer ( window );
   GRect bounds = layer_get_bounds ( window_layer );
 
-  window_set_background_color ( window, COLOR_FALLBACK ( COLOR_BACKGROUND, GColorClear ) );
-
+  #ifdef PBL_COLOR
+    window_set_background_color ( window, COLOR_BACKGROUND );
+  #endif
+  
   accel_tap_service_subscribe ( accel_tap_stopwatch_handler );
 
   s_custom_font_45 = fonts_load_custom_font ( resource_get_handle ( RESOURCE_ID_FONT_CUSTOM_45 ) );

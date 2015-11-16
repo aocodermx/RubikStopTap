@@ -37,7 +37,9 @@ static void window_load ( Window * window ) {
   Layer *window_layer = window_get_root_layer ( window );
   GRect bounds = layer_get_bounds ( window_layer );
 
-  window_set_background_color ( window, COLOR_FALLBACK ( COLOR_BACKGROUND, GColorClear ) );
+  #ifdef PBL_COLOR
+    window_set_background_color ( window, COLOR_BACKGROUND );
+  #endif
 
   for (int i = 0; i < MAX_CUBE_SIZE - 1; i++) {
     snprintf ( sizes_text[i], sizeof ( sizes_text[i]), "%dx%dx%d", i + 2, i + 2, i + 2 );
