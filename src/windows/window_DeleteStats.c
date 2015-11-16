@@ -55,7 +55,7 @@ static void window_load ( Window * window ) {
   action_bar_layer_set_icon ( s_action_bar, BUTTON_ID_DOWN, s_icon_action_cancel );
   action_bar_layer_set_click_config_provider ( s_action_bar, ( ClickConfigProvider ) window_click_config_provider );
 
-  s_tlayer_message = text_layer_create ( GRect( 0, DELETE_MODE_STATS_MESSAGE_START, bounds.size.w - ACTION_BAR_WIDTH, bounds.size.h - DELETE_MODE_STATS_MESSAGE_START ) );
+  s_tlayer_message = text_layer_create ( GRect( PBL_IF_ROUND_ELSE ( ACTION_BAR_WIDTH, 0 ), DELETE_MODE_STATS_MESSAGE_START, bounds.size.w - PBL_IF_ROUND_ELSE ( 2 * ACTION_BAR_WIDTH, ACTION_BAR_WIDTH ), bounds.size.h - DELETE_MODE_STATS_MESSAGE_START ) );
   text_layer_set_background_color ( s_tlayer_message, COLOR_FALLBACK ( COLOR_BACKGROUND, GColorClear ) );
   text_layer_set_text_alignment ( s_tlayer_message, GTextAlignmentCenter );
   text_layer_set_text_color ( s_tlayer_message, GColorBlack );

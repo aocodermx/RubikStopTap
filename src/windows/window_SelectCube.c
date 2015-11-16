@@ -47,11 +47,18 @@ static void window_load ( Window * window ) {
     };
   }
 
+  #ifdef PBL_RECT
   s_msections[0] = ( SimpleMenuSection ) {
     .title     = "Select your cube",
     .num_items = MAX_CUBE_SIZE - 1,
     .items     = s_mitem,
   };
+  #else
+  s_msections[0] = ( SimpleMenuSection ) {
+    .num_items = MAX_CUBE_SIZE - 1,
+    .items     = s_mitem,
+  };
+  #endif
 
   s_mlayer_sizes = simple_menu_layer_create ( bounds, window, s_msections, 1, NULL );
   #ifdef PBL_COLOR

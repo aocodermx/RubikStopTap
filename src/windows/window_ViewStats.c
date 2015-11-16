@@ -71,12 +71,18 @@ static void window_load ( Window * window ) {
     .subtitle = text_max,
   };
 
-
+  #ifdef PBL_RECT
   s_mlayer_section = ( SimpleMenuSection ) {
     .title     = text_title,
     .num_items = STATS_NUMBER,
     .items     = s_mlayer_stats_items,
   };
+  #else
+  s_mlayer_section = ( SimpleMenuSection ) {
+    .num_items = STATS_NUMBER,
+    .items     = s_mlayer_stats_items,
+  };
+  #endif
 
 
   s_mlayer_stats = simple_menu_layer_create ( bounds, window, &s_mlayer_section, 1, NULL );

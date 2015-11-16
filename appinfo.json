@@ -27,7 +27,7 @@
         "file": "LCD-U___.TTF"
       },
       {
-        "characterRegex": "[0-9]",
+        "characterRegex": "[:0-9]",
         "type": "font",
         "name": "FONT_CUSTOM_35",
         "file": "LCD-U___.TTF"

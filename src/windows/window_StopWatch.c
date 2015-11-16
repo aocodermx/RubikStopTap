@@ -216,23 +216,23 @@ static void window_load ( Window * window ) {
   action_bar_layer_set_icon ( action_bar, BUTTON_ID_SELECT, s_icon_action_mode );
   action_bar_layer_set_icon ( action_bar, BUTTON_ID_DOWN, s_icon_action_cancel );
 
-  s_tlayer_phase = text_layer_create ( GRect ( 0, STOP_WATCH_DISPLAY_OFFSET, bounds.size.w - ACTION_BAR_WIDTH, STOP_WATCH_LAYER_PHASE_HEIGHT ) );
-  text_layer_set_background_color( s_tlayer_phase, COLOR_FALLBACK( COLOR_BACKGROUND, GColorClear ) );
+  s_tlayer_phase = text_layer_create ( GRect ( PBL_IF_ROUND_ELSE ( ACTION_BAR_WIDTH, 0 ), STOP_WATCH_DISPLAY_OFFSET, bounds.size.w - PBL_IF_ROUND_ELSE( 2 * ACTION_BAR_WIDTH, ACTION_BAR_WIDTH ), STOP_WATCH_LAYER_PHASE_HEIGHT ) );
+  text_layer_set_background_color( s_tlayer_phase, COLOR_FALLBACK ( COLOR_BACKGROUND, GColorClear ) );
   text_layer_set_text_alignment ( s_tlayer_phase, GTextAlignmentCenter );
   text_layer_set_text_color ( s_tlayer_phase, GColorBlack );
   text_layer_set_font ( s_tlayer_phase, fonts_get_system_font ( FONT_KEY_GOTHIC_18_BOLD ) );
   text_layer_set_text ( s_tlayer_phase, STOPWATCH_STATE_STOP );
   layer_add_child ( window_layer, text_layer_get_layer ( s_tlayer_phase ) );
 
-  s_tlayer_time_lv1 = text_layer_create ( GRect ( 0, STOP_WATCH_DISPLAY_OFFSET + STOP_WATCH_LAYER_PHASE_HEIGHT, bounds.size.w - ACTION_BAR_WIDTH, STOP_WATCH_LAYER_LV1_HEIGHT ) );
-  text_layer_set_background_color( s_tlayer_time_lv1, COLOR_FALLBACK( COLOR_BACKGROUND, GColorClear ) );
+  s_tlayer_time_lv1 = text_layer_create ( GRect ( PBL_IF_ROUND_ELSE ( ACTION_BAR_WIDTH, 0 ), STOP_WATCH_DISPLAY_OFFSET + STOP_WATCH_LAYER_PHASE_HEIGHT, bounds.size.w - PBL_IF_ROUND_ELSE ( 2 * ACTION_BAR_WIDTH, ACTION_BAR_WIDTH ), STOP_WATCH_LAYER_LV1_HEIGHT ) );
+  text_layer_set_background_color( s_tlayer_time_lv1, COLOR_FALLBACK ( COLOR_BACKGROUND, GColorClear ) );
   text_layer_set_text_color ( s_tlayer_time_lv1, COLOR_FALLBACK( GColorOxfordBlue, GColorBlack ) );
   text_layer_set_text_alignment ( s_tlayer_time_lv1, GTextAlignmentCenter );
   text_layer_set_text ( s_tlayer_time_lv1, "00:00" );
-  text_layer_set_font ( s_tlayer_time_lv1, s_custom_font_45 );
+  text_layer_set_font ( s_tlayer_time_lv1, PBL_IF_ROUND_ELSE ( s_custom_font_35, s_custom_font_45 ) );
   layer_add_child ( window_layer, text_layer_get_layer ( s_tlayer_time_lv1 ) );
 
-  s_tlayer_time_lv2 = text_layer_create ( GRect ( 0, STOP_WATCH_DISPLAY_OFFSET + STOP_WATCH_LAYER_LV1_HEIGHT + STOP_WATCH_LAYER_PHASE_HEIGHT, bounds.size.w - ACTION_BAR_WIDTH, STOP_WATCH_LAYER_LV2_HEIGHT ) );
+  s_tlayer_time_lv2 = text_layer_create ( GRect ( PBL_IF_ROUND_ELSE ( ACTION_BAR_WIDTH, 0 ), STOP_WATCH_DISPLAY_OFFSET + STOP_WATCH_LAYER_LV1_HEIGHT + STOP_WATCH_LAYER_PHASE_HEIGHT, bounds.size.w - PBL_IF_ROUND_ELSE ( 2 * ACTION_BAR_WIDTH, ACTION_BAR_WIDTH ), STOP_WATCH_LAYER_LV2_HEIGHT ) );
   text_layer_set_background_color( s_tlayer_time_lv2, COLOR_FALLBACK( COLOR_BACKGROUND, GColorClear ) );
   text_layer_set_text_color ( s_tlayer_time_lv2, COLOR_FALLBACK( GColorOxfordBlue, GColorBlack ) );
   text_layer_set_text ( s_tlayer_time_lv2, "000" );
@@ -242,9 +242,9 @@ static void window_load ( Window * window ) {
 
   s_tlayer_mode = text_layer_create (
     GRect (
-      0,
+      PBL_IF_ROUND_ELSE( ACTION_BAR_WIDTH, 0 ),
       STOP_WATCH_DISPLAY_OFFSET + STOP_WATCH_LAYER_PHASE_HEIGHT + STOP_WATCH_LAYER_LV1_HEIGHT + STOP_WATCH_LAYER_LV2_HEIGHT,
-      bounds.size.w - ACTION_BAR_WIDTH,
+      bounds.size.w - PBL_IF_ROUND_ELSE( 2 * ACTION_BAR_WIDTH, ACTION_BAR_WIDTH ),
       STOP_WATCH_LAYER_STATS_LV1_HEIGHT ) );
   text_layer_set_background_color( s_tlayer_mode, COLOR_FALLBACK( COLOR_BACKGROUND, GColorClear ) );
   text_layer_set_text_alignment ( s_tlayer_mode, GTextAlignmentCenter );
@@ -254,9 +254,9 @@ static void window_load ( Window * window ) {
 
   s_tlayer_times_average = text_layer_create (
     GRect (
-      0,
+      PBL_IF_ROUND_ELSE( ACTION_BAR_WIDTH, 0 ),
       bounds.size.h - STOP_WATCH_LAYER_STATS_LV2_HEIGHT,
-      bounds.size.w - ACTION_BAR_WIDTH,
+      bounds.size.w - PBL_IF_ROUND_ELSE( 2 * ACTION_BAR_WIDTH, ACTION_BAR_WIDTH ),
       STOP_WATCH_LAYER_STATS_LV2_HEIGHT ) );
   text_layer_set_background_color( s_tlayer_times_average, COLOR_FALLBACK( COLOR_BACKGROUND, GColorClear ) );
   text_layer_set_text_alignment ( s_tlayer_times_average, GTextAlignmentLeft );
