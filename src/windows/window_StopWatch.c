@@ -45,6 +45,41 @@ static void down_double_click_handler ( ClickRecognizerRef, void * );
 static void down_long_click_handler ( ClickRecognizerRef, void * );
 
 
+static void inbox_received_handler(DictionaryIterator *iter, void *context) {
+  APP_LOG ( APP_LOG_LEVEL_INFO, "Message received" );
+
+  int cube_size = getCubeSize ( );
+  int world_min_value = 0;
+  int world_max_value = 0;
+
+  Tuple *cube_world_min = dict_find ( iter, 3 ); // "cube-world-min"
+  Tuple *cube_world_max = dict_find ( iter, 4 ); // "cube-world-avg"
+
+  // If all data is available, use it
+  if ( cube_world_min && cube_world_max ) {
+    world_min_value = (int) cube_world_min->value->int32;
+    world_max_value = (int) cube_world_max->value->int32;
+
+    setCubeWorldMin( cube_size, world_min_value );
+    setCubeWorldMax( cube_size, world_max_value );
+
+    APP_LOG ( APP_LOG_LEVEL_INFO, " --> VIRTUAL RANK SINGLE : %d", world_min_value );
+    APP_LOG ( APP_LOG_LEVEL_INFO, " --> VIRTUAL RANK AVERAGE: %d", world_max_value );
+  }
+}
+
+static void inbox_dropped_handler ( AppMessageResult reason, void *context ) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "App Message Dropped!");
+}
+
+static void outbox_failed_handler (DictionaryIterator *iterator, AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send failed!");
+}
+
+static void outbox_sent_handler (DictionaryIterator *iterator, void *context) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+}
+
 void window_stopwatch_init ( ) {
   s_stopwatch_window = window_create ( );
   // window_set_click_config_provider ( s_stopwatch_window, ( ClickConfigProvider ) config_provider );
@@ -58,6 +93,12 @@ void window_stopwatch_init ( ) {
     window_set_fullscreen ( s_stopwatch_window, true );
   #endif
   window_stack_push ( s_stopwatch_window, true );
+
+  app_message_register_inbox_received ( inbox_received_handler );
+  app_message_register_inbox_dropped ( inbox_dropped_handler );
+  app_message_register_outbox_failed ( outbox_failed_handler );
+  app_message_register_outbox_sent ( outbox_sent_handler );
+  app_message_open ( app_message_inbox_size_maximum ( ), app_message_outbox_size_maximum ( ) );
 }
 
 void window_stopwatch_deinit ( ) {
@@ -178,6 +219,7 @@ static void accel_tap_stopwatch_handler ( AccelAxisType axis, int32_t direction 
       } else {
         text_layer_set_text ( s_tlayer_phase, STOPWATCH_STATE_REVIEW );
       }
+
       vibes_short_pulse ( );
       stopwatch_state = REVIEW;
       break;
@@ -188,6 +230,16 @@ static void accel_tap_stopwatch_handler ( AccelAxisType axis, int32_t direction 
       append_time_entry ( s_elapsed_time );
       update_ui_stats ( );
       vibes_short_pulse ( );
+
+      // TODO: Add condition to calculate world position in only specified events.
+      // Check for world ranking
+      DictionaryIterator *iter;
+      app_message_outbox_begin(&iter);
+      dict_write_uint32 ( iter, 0, (uint32_t) getCubeSize ( ) );
+      dict_write_uint32 ( iter, 1, (uint32_t) ( getCubeMin ( getCubeSize ( ) ) / 10 ) );
+      dict_write_uint32 ( iter, 2, (uint32_t) ( getCubeAverage( getCubeSize ( ) ) / 10 ) );
+      app_message_outbox_send ( );
+
       stopwatch_state = STOP;
       break;
   }
@@ -200,7 +252,7 @@ static void window_load ( Window * window ) {
   #ifdef PBL_COLOR
     window_set_background_color ( window, COLOR_BACKGROUND );
   #endif
-  
+
   accel_tap_service_subscribe ( accel_tap_stopwatch_handler );
 
   s_custom_font_45 = fonts_load_custom_font ( resource_get_handle ( RESOURCE_ID_FONT_CUSTOM_45 ) );

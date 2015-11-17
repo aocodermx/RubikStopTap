@@ -4,8 +4,9 @@
 
 static Window           *s_viewstats_window;
 static SimpleMenuLayer  *s_mlayer_stats;
-static SimpleMenuSection s_mlayer_section;
-static SimpleMenuItem    s_mlayer_stats_items[STATS_NUMBER];
+static SimpleMenuSection s_mlayer_section[SECTIONS_NUMBER];
+static SimpleMenuItem    s_mlayer_stats_items_1[STATS_NUMBER_MAIN];
+static SimpleMenuItem    s_mlayer_stats_items_2[STATS_NUMBER_WORLD];
 
 static void window_load ( Window * );
 static void window_unload ( Window * );
@@ -42,6 +43,8 @@ static void window_load ( Window * window ) {
   static char text_average[10];
   static char text_max[10];
   static char text_min[10];
+  static char text_world_max[10];
+  static char text_world_min[10];
 
   timeFromInt ( &average, getCubeAverage ( cube_size ) );
   timeFromInt ( &max, getCubeMax ( cube_size ) );
@@ -52,42 +55,67 @@ static void window_load ( Window * window ) {
   snprintf ( text_average, sizeof ( text_average), "%02d:%02d.%03d", average.Minutes, average.Seconds, average.MilliSeconds );
   snprintf ( text_max, sizeof ( text_max ), "%02d:%02d.%03d", max.Minutes, max.Seconds, max.MilliSeconds );
   snprintf ( text_min, sizeof ( text_min ), "%02d:%02d.%03d", min.Minutes, min.Seconds, min.MilliSeconds );
+  snprintf ( text_world_min, sizeof ( text_world_min ), "#%d", getCubeWorldMin ( cube_size ) );
+  snprintf ( text_world_max, sizeof ( text_world_max ), "#%d", getCubeWorldMax ( cube_size ) );
 
-  s_mlayer_stats_items[0] = ( SimpleMenuItem ) {
+  s_mlayer_stats_items_1[0] = ( SimpleMenuItem ) {
     .title    = "Total solves",
     .subtitle = text_solves,
   };
 
-  s_mlayer_stats_items[1] = ( SimpleMenuItem ) {
+  s_mlayer_stats_items_1[1] = ( SimpleMenuItem ) {
     .title    = "Average time",
     .subtitle = text_average,
   };
 
-  s_mlayer_stats_items[2] = ( SimpleMenuItem ) {
+  s_mlayer_stats_items_1[2] = ( SimpleMenuItem ) {
     .title    = "Best time",
     .subtitle = text_min,
   };
 
-  s_mlayer_stats_items[3] = ( SimpleMenuItem ) {
+  s_mlayer_stats_items_1[3] = ( SimpleMenuItem ) {
     .title    = "Worst time",
     .subtitle = text_max,
   };
 
+
+  s_mlayer_stats_items_2[0] = ( SimpleMenuItem ) {
+    .title    = "Best Time",
+    .subtitle = text_world_min,
+  };
+
+  s_mlayer_stats_items_2[1] = ( SimpleMenuItem ) {
+    .title    = "Average Time",
+    .subtitle = text_world_max,
+  };
+
+
   #ifdef PBL_RECT
-  s_mlayer_section = ( SimpleMenuSection ) {
+  s_mlayer_section[0] = ( SimpleMenuSection ) {
     .title     = text_title,
-    .num_items = STATS_NUMBER,
-    .items     = s_mlayer_stats_items,
+    .num_items = STATS_NUMBER_MAIN,
+    .items     = s_mlayer_stats_items_1,
+  };
+
+  s_mlayer_section[1] = ( SimpleMenuSection ) {
+    .title     = "World Rank",
+    .num_items = STATS_NUMBER_WORLD,
+    .items     = s_mlayer_stats_items_2,
   };
   #else
-  s_mlayer_section = ( SimpleMenuSection ) {
-    .num_items = STATS_NUMBER,
-    .items     = s_mlayer_stats_items,
+  s_mlayer_section[0] = ( SimpleMenuSection ) {
+    .num_items = STATS_NUMBER_MAIN,
+    .items     = s_mlayer_stats_items_1,
+  };
+
+  s_mlayer_section[1] = ( SimpleMenuSection ) {
+    .num_items = STATS_NUMBER_WORLD,
+    .items     = s_mlayer_stats_items_2,
   };
   #endif
 
 
-  s_mlayer_stats = simple_menu_layer_create ( bounds, window, &s_mlayer_section, 1, NULL );
+  s_mlayer_stats = simple_menu_layer_create ( bounds, window, s_mlayer_section, SECTIONS_NUMBER, NULL );
   #ifdef PBL_COLOR
     MenuLayer *mlayer = simple_menu_layer_get_menu_layer ( s_mlayer_stats );
     menu_layer_set_normal_colors ( mlayer, COLOR_BACKGROUND, GColorBlack );

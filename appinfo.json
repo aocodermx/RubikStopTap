@@ -3,14 +3,18 @@
   "shortName": "RubikStopTap",
   "longName": "RubikStopTap",
   "companyName": "aocodermx",
-  "versionLabel": "1.2",
+  "versionLabel": "1.3",
   "sdkVersion": "3",
   "targetPlatforms": ["aplite", "basalt", "chalk"],
   "watchapp": {
     "watchface": false
   },
   "appKeys": {
-    "dummy": 0
+    "cube-size": 0,
+    "cube-min" : 1,
+    "cube-avg" : 2,
+    "cube-world-min": 3,
+    "cube-world-avg": 4
   },
   "resources": {
     "media": [
