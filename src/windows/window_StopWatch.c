@@ -51,20 +51,45 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   int cube_size = getCubeSize ( );
   int world_min_value = 0;
   int world_max_value = 0;
+  int continent_min_value = 0;
+  int continent_max_value = 0;
+  int country_min_value = 0;
+  int country_max_value = 0;
 
   Tuple *cube_world_min = dict_find ( iter, 3 ); // "cube-world-min"
   Tuple *cube_world_max = dict_find ( iter, 4 ); // "cube-world-avg"
+  Tuple *cube_continent_single  = dict_find ( iter, 5 ); // "cube-continent-single"
+  Tuple *cube_continent_average = dict_find ( iter, 6 ); // "cube-continent-average"
+  Tuple *cube_country_single  = dict_find ( iter, 7 );
+  Tuple *cube_country_average = dict_find ( iter, 8 );
 
   // If all data is available, use it
-  if ( cube_world_min && cube_world_max ) {
+  if ( cube_world_min        && cube_world_max         &&
+       cube_continent_single && cube_continent_average &&
+       cube_country_single   && cube_country_average   ) {
+
     world_min_value = (int) cube_world_min->value->int32;
     world_max_value = (int) cube_world_max->value->int32;
 
+    continent_min_value = (int) cube_continent_single->value->int32;
+    continent_max_value = (int) cube_continent_average->value->int32;
+
+    country_min_value = (int) cube_country_single->value->int32;
+    country_max_value = (int) cube_country_average->value->int32;
+
     setCubeWorldMin( cube_size, world_min_value );
     setCubeWorldMax( cube_size, world_max_value );
+    setCubeContinentMin ( cube_size, continent_min_value );
+    setCubeContinentMax ( cube_size, continent_max_value );
+    setCubeCountryMin ( cube_size, country_min_value );
+    setCubeCountryMax ( cube_size, country_max_value );
 
-    APP_LOG ( APP_LOG_LEVEL_INFO, " --> VIRTUAL RANK SINGLE : %d", world_min_value );
-    APP_LOG ( APP_LOG_LEVEL_INFO, " --> VIRTUAL RANK AVERAGE: %d", world_max_value );
+    APP_LOG ( APP_LOG_LEVEL_INFO, " --> VIRTUAL WORLD RANK SINGLE : %d", world_min_value );
+    APP_LOG ( APP_LOG_LEVEL_INFO, " --> VIRTUAL WORLD RANK AVERAGE: %d", world_max_value );
+    APP_LOG ( APP_LOG_LEVEL_INFO, " --> VIRTUAL CONTINENT RANK SINGLE: %d", continent_min_value );
+    APP_LOG ( APP_LOG_LEVEL_INFO, " --> VIRTUAL CONTINENT RANK AVERAGE: %d", continent_max_value );
+    APP_LOG ( APP_LOG_LEVEL_INFO, " --> VIRTUAL COUNTRY RANK SINGLE: %d", country_min_value );
+    APP_LOG ( APP_LOG_LEVEL_INFO, " --> VIRTUAL COUNTRY RANK AVERAGE: %d", country_max_value );
   }
 }
 

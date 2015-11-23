@@ -12,9 +12,10 @@ Pebble.addEventListener('appmessage',
 function getWorldStats ( cubesize, cubemin, cubeavg ) {
   var req = new XMLHttpRequest();
   var url = 'http://raspberrypi.lan/rubiksite/rubikstoptap.php?' +
-  'action=' + 'worldaverage' + '&' +
   'cube=' + cubesize + cubesize + cubesize + '&' +
-  'time=' + cubeavg;
+  'single=' + cubemin + '&' +
+  'average=' + cubeavg + '&' +
+  'country=' + 'Mexico';
 
   console.log ( 'Request url: ' + url );
 
@@ -23,13 +24,10 @@ function getWorldStats ( cubesize, cubemin, cubeavg ) {
   req.onload = function ( e ) {
     if (req.readyState == 4) {
       if(req.status == 200) {
-
-        console.log(req.responseText);
-        Pebble.sendAppMessage ( {
-          'cube-world-avg': parseInt ( req.responseText ),
-          'cube-world-min': 0
-        }, function (e) {
-          console.log ( 'Ranking info sent successfully.' );
+        response = JSON.parse( req.responseText );
+        console.log( 'Response: ' + JSON.stringify ( response ) );
+        Pebble.sendAppMessage ( response, function (e) {
+          console.log ( 'Ranking info sent successfully. ' );
         }, function (e) {
           console.log ( 'Ranking info sent failed.' );
         });

@@ -20,6 +20,10 @@
 #define KEY_PERSIST_MIN_OFFSET       3
 #define KEY_PERSIST_WORLD_MIN_OFFSET 4
 #define KEY_PERSIST_WORLD_MAX_OFFSET 5
+#define KEY_PERSIST_CONTINENT_MIN_OFFSET 6
+#define KEY_PERSIST_CONTINENT_MAX_OFFSET 7
+#define KEY_PERSIST_COUNTRY_MIN_OFFSET 8
+#define KEY_PERSIST_COUNTRY_MAX_OFFSET 9
 
 #define DEFAULT_CUBE_SIZE   3
 #define MAX_CUBE_SIZE      12
@@ -38,6 +42,10 @@ int  getCubeMax      ( int );
 int  getCubeMin      ( int );
 int  getCubeWorldMin ( int );
 int  getCubeWorldMax ( int );
+int  getCubeContinentMin ( int );
+int  getCubeContinentMax ( int );
+int  getCubeCountryMin ( int );
+int  getCubeCountryMax ( int );
 
 void setCubeSize     ( int );
 void setCubeSolves   ( int, int );
@@ -46,6 +54,10 @@ void setCubeMax      ( int, int );
 void setCubeMin      ( int, int );
 void setCubeWorldMin ( int, int );
 void setCubeWorldMax ( int, int );
+void setCubeContinentMin ( int, int );
+void setCubeContinentMax ( int, int );
+void setCubeCountryMin ( int, int );
+void setCubeCountryMax ( int, int );
 
 void timeFromInt       ( STime *, int );
 int  intFromTime       ( STime * );

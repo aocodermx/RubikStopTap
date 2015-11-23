@@ -106,9 +106,61 @@ int  getCubeWorldMax ( int cube_size ) {
       0;
 }
 
-void setCubeWorldMax ( int cube_size, int min ) {
+void setCubeWorldMax ( int cube_size, int max ) {
   int stats_begin = STATS_START * ( cube_size + 1 );
-  persist_write_int ( stats_begin + KEY_PERSIST_WORLD_MAX_OFFSET, min );
+  persist_write_int ( stats_begin + KEY_PERSIST_WORLD_MAX_OFFSET, max );
+}
+
+int  getCubeContinentMin ( int cube_size ) {
+  int stats_begin = STATS_START * ( cube_size + 1 );
+  return
+    persist_exists( stats_begin + KEY_PERSIST_CONTINENT_MIN_OFFSET ) ?
+      persist_read_int ( stats_begin + KEY_PERSIST_CONTINENT_MIN_OFFSET ) :
+      0;
+}
+
+void setCubeContinentMin ( int cube_size, int min ) {
+  int stats_begin = STATS_START * ( cube_size + 1 );
+  persist_write_int ( stats_begin + KEY_PERSIST_CONTINENT_MIN_OFFSET, min );
+}
+
+int  getCubeContinentMax ( int cube_size ) {
+  int stats_begin = STATS_START * ( cube_size + 1 );
+  return
+    persist_exists( stats_begin + KEY_PERSIST_CONTINENT_MAX_OFFSET ) ?
+      persist_read_int ( stats_begin + KEY_PERSIST_CONTINENT_MAX_OFFSET ) :
+      0;
+}
+
+void setCubeContinentMax ( int cube_size, int min ) {
+  int stats_begin = STATS_START * ( cube_size + 1 );
+  persist_write_int ( stats_begin + KEY_PERSIST_CONTINENT_MAX_OFFSET, min );
+}
+
+int  getCubeCountryMin ( int cube_size ) {
+  int stats_begin = STATS_START * ( cube_size + 1 );
+  return
+    persist_exists( stats_begin + KEY_PERSIST_COUNTRY_MIN_OFFSET ) ?
+      persist_read_int ( stats_begin + KEY_PERSIST_COUNTRY_MIN_OFFSET ) :
+      0;
+}
+
+void setCubeCountryMin ( int cube_size, int min ) {
+  int stats_begin = STATS_START * ( cube_size + 1 );
+  persist_write_int ( stats_begin + KEY_PERSIST_COUNTRY_MIN_OFFSET, min );
+}
+
+int  getCubeCountryMax ( int cube_size ) {
+  int stats_begin = STATS_START * ( cube_size + 1 );
+  return
+    persist_exists( stats_begin + KEY_PERSIST_COUNTRY_MAX_OFFSET ) ?
+      persist_read_int ( stats_begin + KEY_PERSIST_COUNTRY_MAX_OFFSET ) :
+      0;
+}
+
+void setCubeCountryMax ( int cube_size, int min ) {
+  int stats_begin = STATS_START * ( cube_size + 1 );
+  persist_write_int ( stats_begin + KEY_PERSIST_COUNTRY_MAX_OFFSET, min );
 }
 
 void append_time_entry ( int itime ) {
@@ -139,6 +191,10 @@ void delete_cube_stats ( int cube_size ) {
   setCubeMin      ( cube_size, 0 );
   setCubeWorldMin ( cube_size, 0 );
   setCubeWorldMax ( cube_size, 0 );
+  setCubeContinentMin ( cube_size, 0 );
+  setCubeContinentMax ( cube_size, 0 );
+  setCubeCountryMin ( cube_size, 0 );
+  setCubeCountryMax ( cube_size, 0 );
 }
 
 void delete_all_stats ( ) {
