@@ -71,11 +71,11 @@ static void down_single_click_handler ( ClickRecognizerRef recognizer, void *con
   if ( stopwatch_state == VIEW )
     accel_tap_service_subscribe ( accel_tap_stopwatch_handler );
 
+  stopwatch_state = STOP;
   text_layer_set_text ( s_tlayer_phase, STOPWATCH_STATE_STOP );
   text_layer_set_text ( s_tlayer_time_lv1, "00:00" );
   text_layer_set_text ( s_tlayer_time_lv2, "000" );
   app_timer_cancel ( s_timer );
-  stopwatch_state = STOP;
 }
 
 static void up_single_click_handler ( ClickRecognizerRef recognizer, void * context ) {
@@ -125,21 +125,24 @@ static void update_ui_stats ( ) {
 static void app_timer_stopwatch_handler ( void * data ) {
   static char  s_the_time[6];
   static char  s_the_time_ms[4];
+  static bool  s_wait_flag = true;
 
-  int end_time = time ( NULL ) * 1000 + ( double ) time_ms ( NULL, NULL );
+  int end_time   = time ( NULL ) * 1000 + ( double ) time_ms ( NULL, NULL );
   s_elapsed_time = end_time - s_start_time;
-
-  timeFromInt ( &stime, s_elapsed_time );
-  snprintf ( s_the_time   , sizeof ( s_the_time    ), "%02d:%02d", stime.Minutes, stime.Seconds );
-  snprintf ( s_the_time_ms, sizeof ( s_the_time_ms ), "%03d"     , stime.MilliSeconds );
-  text_layer_set_text ( s_tlayer_time_lv1, s_the_time );
-  text_layer_set_text ( s_tlayer_time_lv2, s_the_time_ms );
 
   switch ( stopwatch_state ) {
     case STOP:
-      break;
+      accel_tap_service_subscribe ( accel_tap_stopwatch_handler );
+      return;
     case REVIEW:
-      break;
+      if ( s_wait_flag ) {
+        s_timer     = app_timer_register ( STOP_WATCH_WAIT_TIME, app_timer_stopwatch_handler, NULL );
+        s_wait_flag = false;
+      } else {
+        accel_tap_service_subscribe ( accel_tap_stopwatch_handler );
+        s_wait_flag = true;
+      }
+      return;
     case VIEW:
       s_timer = app_timer_register ( STOP_WATCH_PRESICION, app_timer_stopwatch_handler, NULL );
       if ( s_elapsed_time > STOP_WATCH_VIEW_TIME ) {
@@ -151,28 +154,35 @@ static void app_timer_stopwatch_handler ( void * data ) {
       break;
     case START:
       s_timer = app_timer_register ( STOP_WATCH_PRESICION, app_timer_stopwatch_handler, NULL );
-      if ( s_elapsed_time > 1000 ) {
+      if ( s_elapsed_time > STOP_WATCH_WAIT_TIME ) {
         accel_tap_service_subscribe ( accel_tap_stopwatch_handler );
       }
       break;
   }
+
+  timeFromInt ( &stime, s_elapsed_time );
+  snprintf    ( s_the_time   , sizeof ( s_the_time    ), "%02d:%02d", stime.Minutes, stime.Seconds );
+  snprintf    ( s_the_time_ms, sizeof ( s_the_time_ms ), "%03d"     , stime.MilliSeconds );
+  text_layer_set_text ( s_tlayer_time_lv1, s_the_time );
+  text_layer_set_text ( s_tlayer_time_lv2, s_the_time_ms );
 }
 
 static void accel_tap_stopwatch_handler ( AccelAxisType axis, int32_t direction ) {
 
   switch ( stopwatch_state ) {
     case STOP: // Start review time
+      accel_tap_service_unsubscribe ( );
       text_layer_set_text ( s_tlayer_phase, STOPWATCH_STATE_VIEW );
-      vibes_short_pulse ( );
       s_start_time = time ( NULL ) * 1000 + ( double ) time_ms ( NULL, NULL );
       s_timer = app_timer_register ( STOP_WATCH_PRESICION, app_timer_stopwatch_handler, NULL );
+      vibes_short_pulse ( );
       stopwatch_state = VIEW;
-      accel_tap_service_unsubscribe ( );
       break;
     case VIEW:  // Start real time
       break;
     case START:
       // Check for personal record
+      accel_tap_service_unsubscribe ( );
       if ( s_elapsed_time < getCubeMin( getCubeSize ( ) ) ) {
         text_layer_set_text ( s_tlayer_phase, STOPWATCH_CONGRATULATIONS );
       } else {
@@ -182,12 +192,14 @@ static void accel_tap_stopwatch_handler ( AccelAxisType axis, int32_t direction 
       stopwatch_state = REVIEW;
       break;
     case REVIEW:
+      accel_tap_service_unsubscribe ( );
       text_layer_set_text ( s_tlayer_phase, STOPWATCH_STATE_STOP );
       text_layer_set_text ( s_tlayer_time_lv1, "00:00" );
       text_layer_set_text ( s_tlayer_time_lv2, "000" );
       append_time_entry ( s_elapsed_time );
       update_ui_stats ( );
       vibes_short_pulse ( );
+      s_timer = app_timer_register ( STOP_WATCH_WAIT_TIME, app_timer_stopwatch_handler, NULL );
       stopwatch_state = STOP;
       break;
   }
@@ -200,7 +212,7 @@ static void window_load ( Window * window ) {
   #ifdef PBL_COLOR
     window_set_background_color ( window, COLOR_BACKGROUND );
   #endif
-  
+
   accel_tap_service_subscribe ( accel_tap_stopwatch_handler );
 
   s_custom_font_45 = fonts_load_custom_font ( resource_get_handle ( RESOURCE_ID_FONT_CUSTOM_45 ) );
