@@ -60,8 +60,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *cube_world_max = dict_find ( iter, 4 ); // "cube-world-avg"
   Tuple *cube_continent_single  = dict_find ( iter, 5 ); // "cube-continent-single"
   Tuple *cube_continent_average = dict_find ( iter, 6 ); // "cube-continent-average"
-  Tuple *cube_country_single  = dict_find ( iter, 7 );
-  Tuple *cube_country_average = dict_find ( iter, 8 );
+  Tuple *cube_country_single    = dict_find ( iter, 7 );
+  Tuple *cube_country_average   = dict_find ( iter, 8 );
 
   // If all data is available, use it
   if ( cube_world_min        && cube_world_max         &&
