@@ -10,7 +10,15 @@
     "watchface": false
   },
   "appKeys": {
-    "dummy": 0
+    "cube-size": 0,
+    "cube-min" : 1,
+    "cube-avg" : 2,
+    "cube-world-single"     : 3,
+    "cube-world-average"    : 4,
+    "cube-continent-single" : 5,
+    "cube-continent-average": 6,
+    "cube-country-single"   : 7,
+    "cube-country-average"  : 8
   },
   "resources": {
     "media": [

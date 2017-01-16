@@ -23,6 +23,7 @@ This window is intended to be the main window, the first to be called, in this w
 This is the window to select the Stop Watch mode: F2L, OLL, PLL and FULL. Each mode is intended to measure partial times and let the user know where to improve.
 
 * Distinguish between rubik, piramyx and magaminx.
+* Add solving variations, like binforded, one hand, feet.
 * Add other cubes types and dimensions.
 * Add mode selection, and application configuration.
 * Add configmation and close the window after some time (200ms).
